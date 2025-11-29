@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon XRP - Timesheet App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Hackathon XRP - Timesheet</h1>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <span id="userName"></span>
+                <span id="userRole" class="badge"></span>
+                <a href="xrpl-wallet.html" style="margin: 0 10px; color: #667eea; text-decoration: none;">🔗 Wallet XRPL</a>
+                <button onclick="logout()">Déconnexion</button>
+            </div>
+        </header>
+
+        <!-- Login/Register Section -->
+        <div id="authSection" class="section">
+            <div class="auth-tabs">
+                <button class="tab active" onclick="showTab('login')">Connexion</button>
+                <button class="tab" onclick="showTab('register')">Inscription</button>
+            </div>
+
+            <div id="loginTab" class="tab-content active">
+                <h2>Connexion</h2>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                    <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+                    <button type="submit">Se connecter</button>
+                </form>
+                <div class="demo-credentials">
+                    <p><strong>Comptes de test (après seed) :</strong></p>
+                    <p>Worker: alice@test.com / password123</p>
+                    <p>Employer: bob@test.com / password123</p>
+                </div>
+            </div>
+
+            <div id="registerTab" class="tab-content">
+                <h2>Inscription</h2>
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <input type="text" id="registerName" placeholder="Nom" required>
+                    <input type="email" id="registerEmail" placeholder="Email" required>
+                    <input type="password" id="registerPassword" placeholder="Mot de passe" required>
+                    <select id="registerRole" required>
+                        <option value="">Sélectionner un rôle</option>
+                        <option value="worker">Worker</option>
+                        <option value="employer">Employer</option>
+                    </select>
+                    <input type="text" id="registerXrpl" placeholder="Adresse XRPL (optionnel)">
+                    <small>💡 <a href="xrpl-wallet.html" style="color: #667eea;">Connecter un wallet XRPL</a> pour obtenir votre adresse</small>
+                    <button type="submit">S'inscrire</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Worker Section -->
+        <div id="workerSection" class="section" style="display: none;">
+            <h2>👷 Worker Dashboard</h2>
+            
+            <div class="card">
+                <h3>Démarrer un shift</h3>
+                <form onsubmit="handleStartShift(event)">
+                    <select id="employerIdInput" required>
+                        <option value="">Chargement des employeurs...</option>
+                    </select>
+                    <input type="text" id="jobType" placeholder="Type de travail (optionnel)">
+                    <div class="audio-controls">
+                        <button type="button" id="recordStartBtn" onclick="startRecording('start')">🎤 Enregistrer check-in</button>
+                        <button type="button" id="stopStartBtn" onclick="stopRecording('start')" disabled>⏹️ Arrêter</button>
+                        <audio id="startAudio" style="display: none;"></audio>
+                    </div>
+                    <button type="submit" id="submitStartBtn" disabled>Démarrer le shift</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Terminer un shift</h3>
+                <form onsubmit="handleEndShift(event)">
+                    <select id="activeShiftSelect" required>
+                        <option value="">Sélectionner un shift actif</option>
+                    </select>
+                    <div class="audio-controls">
+                        <button type="button" id="recordEndBtn" onclick="startRecording('end')">🎤 Enregistrer check-out</button>
+                        <button type="button" id="stopEndBtn" onclick="stopRecording('end')" disabled>⏹️ Arrêter</button>
+                        <audio id="endAudio" style="display: none;"></audio>
+                    </div>
+                    <button type="submit" id="submitEndBtn" disabled>Terminer le shift</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Mes shifts</h3>
+                <button onclick="loadWorkerShifts()">🔄 Actualiser</button>
+                <div id="workerShiftsList"></div>
+            </div>
+        </div>
+
+        <!-- Employer Section -->
+        <div id="employerSection" class="section" style="display: none;">
+            <h2>👔 Employer Dashboard</h2>
+            
+            <!-- Onglets pour basculer entre les vues -->
+            <div style="margin-bottom: 20px; border-bottom: 2px solid #e5e7eb;">
+                <button onclick="showEmployerTab('proposed')" id="tabProposed" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px 5px 0 0; cursor: pointer; font-weight: bold;">📋 À valider</button>
+                <button onclick="showEmployerTab('validated')" id="tabValidated" style="padding: 10px 20px; background: #e5e7eb; color: #666; border: none; border-radius: 5px 5px 0 0; cursor: pointer; margin-left: 5px;">✅ Validés</button>
+                <button onclick="showEmployerTab('paid')" id="tabPaid" style="padding: 10px 20px; background: #e5e7eb; color: #666; border: none; border-radius: 5px 5px 0 0; cursor: pointer; margin-left: 5px;">💰 Payés</button>
+            </div>
+            
+            <div class="card" id="employerShiftsCard">
+                <h3 id="employerShiftsTitle">Shifts à valider</h3>
+                <button type="button" onclick="refreshEmployerShifts()" id="refreshEmployerBtn">🔄 Actualiser</button>
+                <div id="employerShiftsList">Cliquez sur "Actualiser" pour charger les shifts</div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="message" class="message" style="display: none;"></div>
+
+        <!-- Modal pour les détails du shift -->
+        <div id="shiftModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+            <div style="max-width: 800px; margin: 50px auto; background: white; border-radius: 10px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">📋 Détails du shift</h2>
+                    <button onclick="closeShiftModal()" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 18px;">✕</button>
+                </div>
+                <div id="shiftModalContent">
+                    <div class="loading">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon XRP - XRPL Wallet Integration</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Plus besoin de xrpl.js côté client, tout passe par le backend -->
+    <style>
+        .wallet-button {
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: transform 0.2s;
+        }
+        .wallet-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .wallet-button:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Hackathon XRP - XRPL Wallet</h1>
+            <div id="walletInfo" class="user-info" style="display: none;">
+                <span id="walletAddress"></span>
+                <span id="walletBalance" class="badge"></span>
+                <button onclick="disconnectWallet()">Déconnecter</button>
+            </div>
+        </header>
+
+        <!-- Wallet Connection Section -->
+        <div id="walletSection" class="section">
+            <h2>🔗 Connecter un wallet XRPL</h2>
+            
+            <div class="card">
+                <h3>Options de connexion</h3>
+                <button onclick="connectXumm()">📱 Connecter avec XUMM</button>
+                <button onclick="connectGemWallet()">💎 Connecter avec GemWallet</button>
+                <button onclick="connectSeed()">🔑 Connecter avec Seed</button>
+            </div>
+
+            <div id="seedConnection" class="card" style="display: none;">
+                <h3>Connexion avec Seed</h3>
+                <input type="password" id="seedInput" placeholder="Entrez votre seed (s...)" />
+                <button onclick="connectWithSeed()">Se connecter</button>
+            </div>
+
+            <div id="walletActions" class="card" style="display: none;">
+                <h3>Actions du wallet</h3>
+                <p><strong>Adresse:</strong> <span id="connectedAddress"></span></p>
+                <p><strong>Solde:</strong> <span id="connectedBalance"></span> XRP</p>
+                
+                <div style="margin-top: 20px;">
+                    <h4>Envoyer XRP</h4>
+                    <input type="text" id="sendToAddress" placeholder="Adresse destination" />
+                    <input type="number" id="sendAmount" placeholder="Montant XRP" step="0.000001" />
+                    <button onclick="sendXRP()">Envoyer</button>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h4>Voir sur l'explorer</h4>
+                    <a id="explorerLink" href="#" target="_blank">Voir sur XRPL Explorer</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration avec l'app principale -->
+        <div id="appIntegration" class="section" style="display: none;">
+            <h2>🔗 Intégration avec l'application</h2>
+            <div class="card">
+                <p>Votre wallet XRPL est connecté et peut être utilisé dans l'application.</p>
+                <p>L'adresse sera automatiquement utilisée lors de la création de compte.</p>
+                <button onclick="window.location.href='index.html'">Retour à l'application</button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="message" class="message" style="display: none;"></div>
+    </div>
+
+    <script src="xrpl-wallet.js"></script>
+</body>
+</html>
+
